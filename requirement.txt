@@ -4,3 +4,8 @@ transformers
 pydub
 ffmpeg-python
 torch
+openai-whisper
+ffmpeg-python
+torch
+transformers
+pydub
