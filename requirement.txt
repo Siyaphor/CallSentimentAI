@@ -4,8 +4,6 @@ transformers
 pydub
 ffmpeg-python
 torch
-openai-whisper
-ffmpeg-python
-torch
-transformers
-pydub
+plotly
+
+# Duplicates removed above (do not need to install twice)

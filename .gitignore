@@ -1,0 +1,17 @@
+# Generated audio and cache
+converted.wav
+call_history.json
+temp_audio/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env
+
+# Streamlit
+.streamlit/
