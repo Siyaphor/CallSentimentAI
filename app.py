@@ -78,10 +78,50 @@ def summarize_history(history: List[Dict]) -> Dict:
 
 def render_cards(stats: dict):
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Calls", stats["total"])
-    col2.metric("Positive Calls", stats["positive"])
-    col3.metric("Neutral Calls", stats["neutral"])
-    col4.metric("Negative Calls", stats["negative"])
+    
+    # Total Calls - Blue
+    col1.markdown(
+        f"""
+        <div style="background-color: #3b82f6; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+            <h3>Total Calls</h3>
+            <h1>{stats["total"]}</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # Positive Calls - Green
+    col2.markdown(
+        f"""
+        <div style="background-color: #10b981; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+            <h3>Positive Calls</h3>
+            <h1>{stats["positive"]}</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # Neutral Calls - Gray
+    col3.markdown(
+        f"""
+        <div style="background-color: #6b7280; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+            <h3>Neutral Calls</h3>
+            <h1>{stats["neutral"]}</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # Negative Calls - Red
+    col4.markdown(
+        f"""
+        <div style="background-color: #ef4444; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+            <h3>Negative Calls</h3>
+            <h1>{stats["negative"]}</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_pie_chart(stats: dict):
@@ -103,8 +143,24 @@ def render_pie_chart(stats: dict):
 
     labels = ["Positive", "Neutral", "Negative"]
     values = [stats["positive"], stats["neutral"], stats["negative"]]
-    fig = px.pie(names=labels, values=values, title="Sentiment Distribution", hole=0.4)
+    fig = px.pie(
+        names=labels,
+        values=values,
+        title="Sentiment Distribution",
+        hole=0.4,
+        color=labels,
+        color_discrete_map={
+            "Positive": "#10b981",
+            "Neutral": "#6b7280",
+            "Negative": "#ef4444",
+        },
+    )
     fig.update_traces(textposition="inside", textinfo="percent+label")
+    fig.update_layout(
+        transition_duration=2000,  # Smooth animation on load
+        paper_bgcolor="black",  # Black background
+        plot_bgcolor="black"
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -141,48 +197,68 @@ def render_history_table(history: list[dict]):
 
 def main():
     st.markdown(
-        """
-        <style>
-        /* App background */
-        [data-testid="stAppViewContainer"] {
-            background: #f7fafc;
-            color: #0f172a;
-        }
+    """
+    <style>
+    /* Full app dark background */
+    [data-testid="stAppViewContainer"] {
+        background: #000000;
+        color: #ffffff;
+    }
 
-        /* Force readable text in the app area */
-        [data-testid="stAppViewContainer"] * {
-            color: #0f172a !important;
-        }
+    /* Make all text white */
+    [data-testid="stAppViewContainer"] * {
+        color: #ffffff !important;
+    }
 
-        /* Sidebar background + text (keep sidebar white text) */
-        [data-testid="stSidebar"] {
-            background: #0f172a;
-        }
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: #0b1320;
+    }
 
-        [data-testid="stSidebar"] * {
-            color: #f8fafc !important;
-        }
+    [data-testid="stSidebar"] * {
+        color: #ffffff !important;
+    }
 
-        /* Expander header and buttons */
-        button[aria-expanded] {
-            color: #0f172a !important;
-            font-weight: 600;
-        }
+    /* Upload box styling (THIS MATCHES YOUR 2nd IMAGE) */
+    [data-testid="stFileUploader"] {
+        background: #111111;
+        border: 1px solid #333;
+        padding: 15px;
+        border-radius: 12px;
+    }
 
-        /* Make text areas easier to read */
-        .stTextArea textarea {
-            background: #ffffff !important;
-            color: #111827 !important;
-        }
+    /* "Browse files" button */
+    [data-testid="stFileUploader"] button {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 1px solid #555 !important;
+        border-radius: 8px !important;
+    }
 
-        /* Ensure headings are visible */
-        h1, h2, h3, h4, h5, h6 {
-            color: #0f172a !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    [data-testid="stFileUploader"] button:hover {
+        background-color: #111111 !important;
+    }
+
+    /* Text area (transcript) */
+    .stTextArea textarea {
+        background: #111111 !important;
+        color: #ffffff !important;
+        border: 1px solid #333 !important;
+    }
+
+    /* Headings */
+    h1, h2, h3, h4 {
+        color: #ffffff !important;
+    }
+
+    /* Expander */
+    button[aria-expanded] {
+        color: #ffffff !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
     st.markdown(f"# {APP_TITLE}")
     st.write("Help Desk Call Sentiment Analytics")
