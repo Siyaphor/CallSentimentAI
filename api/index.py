@@ -81,14 +81,52 @@ def transcribe_audio(file_storage) -> str:
 
 @app.get("/")
 def home():
-    return jsonify(
-        {
-            "app": APP_TITLE,
-            "subtitle": APP_SUBTITLE,
-            "status": "ok",
-            "message": "VoiceIQ API is running on Vercel.",
-        }
-    )
+    return """
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>VoiceIQ</title>
+        <style>
+          body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: #050810;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+          }
+          main {
+            max-width: 680px;
+            padding: 40px 24px;
+          }
+          h1 {
+            margin: 0 0 12px;
+            font-size: 48px;
+            line-height: 1;
+            color: #60a5fa;
+          }
+          p {
+            color: #94a3b8;
+            font-size: 18px;
+            line-height: 1.6;
+          }
+          code {
+            color: #67e8f9;
+          }
+        </style>
+      </head>
+      <body>
+        <main>
+          <h1>VoiceIQ</h1>
+          <p>Call Sentiment Intelligence API is running on Vercel.</p>
+          <p>Health check: <code>/health</code></p>
+        </main>
+      </body>
+    </html>
+    """
 
 
 @app.get("/health")
