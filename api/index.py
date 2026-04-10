@@ -42,7 +42,12 @@ def summarize_history(history: List[Dict]) -> Dict:
 
 
 def load_sentiment_model():
-    from transformers import pipeline
+    try:
+        from transformers import pipeline
+    except ImportError as exc:
+        raise RuntimeError(
+            "Sentiment analysis dependencies are not installed in the Vercel runtime."
+        ) from exc
 
     return pipeline(
         "sentiment-analysis",
@@ -51,8 +56,13 @@ def load_sentiment_model():
 
 
 def transcribe_audio(file_storage) -> str:
-    import whisper
-    from pydub import AudioSegment
+    try:
+        import whisper
+        from pydub import AudioSegment
+    except ImportError as exc:
+        raise RuntimeError(
+            "Audio transcription dependencies are not installed in the Vercel runtime."
+        ) from exc
 
     whisper_model = whisper.load_model("base")
     suffix = Path(file_storage.filename or "audio").suffix or ".wav"
@@ -99,7 +109,11 @@ def analyze_text():
     if not text:
         return jsonify({"error": "Missing text"}), 400
 
-    sentiment_model = load_sentiment_model()
+    try:
+        sentiment_model = load_sentiment_model()
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 501
+
     sentiment = sentiment_model(text)[0]
     return jsonify(
         {
@@ -116,8 +130,12 @@ def analyze_audio():
     if uploaded_file is None:
         return jsonify({"error": "Missing file field"}), 400
 
-    text = transcribe_audio(uploaded_file)
-    sentiment_model = load_sentiment_model()
+    try:
+        text = transcribe_audio(uploaded_file)
+        sentiment_model = load_sentiment_model()
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 501
+
     sentiment = sentiment_model(text)[0]
 
     return jsonify(
