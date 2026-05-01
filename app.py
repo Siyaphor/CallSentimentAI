@@ -16,7 +16,11 @@ except ImportError:
 import streamlit as st
 import whisper
 from pydub import AudioSegment
-from transformers import pipeline
+
+try:
+    from transformers import pipeline
+except ImportError:
+    from transformers.pipelines import pipeline
 
 # --- Constants
 APP_TITLE = "VoiceIQ"
