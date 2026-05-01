@@ -1,8 +1,6 @@
 streamlit
 openai-whisper
 transformers
-pydub
-pyaudio
 ffmpeg-python
 torch
 plotly

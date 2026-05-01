@@ -15,7 +15,6 @@ except ImportError:
 
 import streamlit as st
 import whisper
-from pydub import AudioSegment
 
 try:
     from transformers import pipeline
