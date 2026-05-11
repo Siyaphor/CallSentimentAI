@@ -1,4 +1,3 @@
-import json
 import os
 import tempfile
 from datetime import datetime
@@ -6,21 +5,19 @@ from pathlib import Path
 from typing import Dict, List
 
 from flask import Flask, jsonify, request
+from mongo_history import add_history_entry, load_history as load_mongo_history
 
 
 APP_TITLE = "VoiceIQ"
 APP_SUBTITLE = "Call Sentiment Intelligence"
-HISTORY_PATH = Path(__file__).resolve().parents[1] / "call_history.json"
 
 app = Flask(__name__)
 
 
 def load_history() -> List[Dict]:
-    if not HISTORY_PATH.exists():
-        return []
     try:
-        return json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
+        return load_mongo_history()
+    except Exception:
         return []
 
 
@@ -153,11 +150,18 @@ def analyze_text():
         return jsonify({"error": str(exc)}), 501
 
     sentiment = sentiment_model(text)[0]
+    label = sentiment.get("label", "NEUTRAL")
+    score = sentiment.get("score", 0.0)
+    try:
+        add_history_entry("text-input", text, label, score)
+    except Exception as exc:
+        return jsonify({"error": f"Could not save analysis to MongoDB: {exc}"}), 503
+
     return jsonify(
         {
             "transcript": text,
-            "sentiment": sentiment.get("label", "NEUTRAL"),
-            "confidence": sentiment.get("score", 0.0),
+            "sentiment": label,
+            "confidence": score,
         }
     )
 
@@ -175,13 +179,19 @@ def analyze_audio():
         return jsonify({"error": str(exc)}), 501
 
     sentiment = sentiment_model(text)[0]
+    label = sentiment.get("label", "NEUTRAL")
+    score = sentiment.get("score", 0.0)
+    try:
+        add_history_entry(uploaded_file.filename, text, label, score)
+    except Exception as exc:
+        return jsonify({"error": f"Could not save analysis to MongoDB: {exc}"}), 503
 
     return jsonify(
         {
             "filename": uploaded_file.filename,
             "transcript": text,
-            "sentiment": sentiment.get("label", "NEUTRAL"),
-            "confidence": sentiment.get("score", 0.0),
+            "sentiment": label,
+            "confidence": score,
         }
     )
 

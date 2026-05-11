@@ -1,0 +1,13 @@
+.git
+.vercel
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.streamlit/
+
+call_history.json
+converted.wav
+temp_audio/

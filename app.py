@@ -1,4 +1,3 @@
-import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -15,16 +14,22 @@ except ImportError:
 
 import streamlit as st
 import whisper
+from mongo_history import add_history_entry as save_mongo_history_entry
+from mongo_history import load_history as load_mongo_history
 
 try:
     from transformers import pipeline
 except ImportError:
     from transformers.pipelines import pipeline
 
+try:
+    from pydub import AudioSegment
+except ImportError:
+    AudioSegment = None
+
 # --- Constants
 APP_TITLE = "VoiceIQ"
 APP_SUBTITLE = "Call Sentiment Intelligence"
-HISTORY_PATH = Path("call_history.json")
 TEMP_AUDIO_DIR = Path("temp_audio")
 TEMP_AUDIO_PATH = TEMP_AUDIO_DIR / "incoming_audio"
 
@@ -173,31 +178,19 @@ def load_models():
 
 
 def load_history() -> List[Dict]:
-    if HISTORY_PATH.exists():
-        try:
-            return json.loads(HISTORY_PATH.read_text())
-        except Exception:
-            return []
-    return []
-
-
-def save_history(history: List[Dict]):
-    HISTORY_PATH.write_text(json.dumps(history, indent=2))
+    try:
+        return load_mongo_history()
+    except Exception as exc:
+        st.warning(f"MongoDB history is unavailable: {exc}")
+        return []
 
 
 def add_history_entry(filename: str, transcript: str, sentiment_label: str, confidence: float):
-    history = load_history()
-    entry = {
-        "id": datetime.utcnow().isoformat(),
-        "filename": filename,
-        "transcript": transcript,
-        "sentiment": sentiment_label,
-        "confidence": confidence,
-        "created_at": datetime.utcnow().isoformat(),
-    }
-    history.insert(0, entry)
-    save_history(history)
-    return history
+    try:
+        return save_mongo_history_entry(filename, transcript, sentiment_label, confidence)
+    except Exception as exc:
+        st.error(f"Could not save analysis to MongoDB: {exc}")
+        return load_history()
 
 
 def summarize_history(history: List[Dict]) -> Dict:
@@ -650,6 +643,10 @@ def page_analyze(whisper_model, sentiment_model):
             TEMP_AUDIO_DIR.unlink()
         TEMP_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
         TEMP_AUDIO_PATH.write_bytes(uploaded_file.getvalue())
+
+        if AudioSegment is None:
+            st.error("The pydub library is required to process audio files. Install it with `pip install pydub`.")
+            return
 
         with st.spinner("Transcribing audio and analyzing sentiment…"):
             audio = AudioSegment.from_file(TEMP_AUDIO_PATH)

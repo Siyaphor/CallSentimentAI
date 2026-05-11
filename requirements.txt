@@ -1,7 +1,8 @@
 streamlit
 openai-whisper
 transformers
+pydub
 ffmpeg-python
 torch
 plotly
-
+pymongo
