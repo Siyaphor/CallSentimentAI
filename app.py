@@ -13,14 +13,8 @@ except ImportError:
     HAS_PLOTLY = False
 
 import streamlit as st
-import whisper
 from mongo_history import add_history_entry as save_mongo_history_entry
 from mongo_history import load_history as load_mongo_history
-
-try:
-    from transformers import pipeline
-except ImportError:
-    from transformers.pipelines import pipeline
 
 try:
     from pydub import AudioSegment
@@ -172,6 +166,13 @@ hr {
 # ─────────────────────────────────────────────
 @st.cache_resource
 def load_models():
+    import whisper
+
+    try:
+        from transformers import pipeline
+    except ImportError:
+        from transformers.pipelines import pipeline
+
     whisper_model = whisper.load_model("base")
     sentiment_model = pipeline("sentiment-analysis")
     return whisper_model, sentiment_model
