@@ -1,4 +1,3 @@
 streamlit
 pydub
-plotly
 pymongo

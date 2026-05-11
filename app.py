@@ -313,7 +313,68 @@ def render_charts(stats: dict):
         return
 
     if not HAS_PLOTLY:
-        st.info("Install `plotly` to enable charts.")
+        total = max(stats["total"], 1)
+        positive_width = stats["positive"] / total * 100
+        neutral_width = stats["neutral"] / total * 100
+        negative_width = stats["negative"] / total * 100
+        history = load_history()
+        recent = history[:10][::-1]
+
+        left, right = st.columns([1, 1], gap="large")
+
+        with left:
+            st.markdown("##### Sentiment Distribution")
+            st.markdown(f"""
+            <div style="
+                border:1px solid rgba(99,179,237,0.12);
+                border-radius:12px;
+                padding:1.2rem;
+                background:rgba(255,255,255,0.02);
+            ">
+                <div style="height:14px;display:flex;border-radius:7px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                    <div style="width:{positive_width}%;background:#34d399;"></div>
+                    <div style="width:{neutral_width}%;background:#94a3b8;"></div>
+                    <div style="width:{negative_width}%;background:#f87171;"></div>
+                </div>
+                <div style="display:grid;gap:0.7rem;margin-top:1rem;font-family:'DM Mono',monospace;font-size:0.75rem;">
+                    <div style="display:flex;justify-content:space-between;color:#34d399;"><span>Positive</span><span>{stats["positive"]}</span></div>
+                    <div style="display:flex;justify-content:space-between;color:#94a3b8;"><span>Neutral</span><span>{stats["neutral"]}</span></div>
+                    <div style="display:flex;justify-content:space-between;color:#f87171;"><span>Negative</span><span>{stats["negative"]}</span></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with right:
+            st.markdown("##### Confidence - Last 10 Calls")
+            bars = []
+            for entry in recent:
+                label = entry.get("sentiment", "NEUTRAL").upper()
+                color = "#34d399" if label == "POSITIVE" else "#f87171" if label == "NEGATIVE" else "#94a3b8"
+                confidence = float(entry.get("confidence", 0) or 0) * 100
+                filename = entry.get("filename", "Call")[:24]
+                bars.append(f"""
+                <div style="display:grid;grid-template-columns:minmax(90px,1fr) 2fr 44px;gap:0.7rem;align-items:center;">
+                    <div style="color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{filename}</div>
+                    <div style="height:10px;background:rgba(255,255,255,0.05);border-radius:5px;overflow:hidden;">
+                        <div style="width:{confidence:.0f}%;height:100%;background:{color};"></div>
+                    </div>
+                    <div style="color:#64748b;text-align:right;">{confidence:.0f}%</div>
+                </div>
+                """)
+            st.markdown(f"""
+            <div style="
+                border:1px solid rgba(99,179,237,0.12);
+                border-radius:12px;
+                padding:1.2rem;
+                background:rgba(255,255,255,0.02);
+                display:grid;
+                gap:0.75rem;
+                font-family:'DM Mono',monospace;
+                font-size:0.72rem;
+            ">
+                {''.join(bars) if bars else '<div style="color:#64748b;">No recent calls.</div>'}
+            </div>
+            """, unsafe_allow_html=True)
         return
 
     left, right = st.columns([1, 1], gap="large")
