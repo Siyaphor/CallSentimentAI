@@ -778,12 +778,12 @@ def page_history(history):
 # ─────────────────────────────────────────────
 def main():
     page = render_sidebar()
-    whisper_model, sentiment_model = load_models()
     history = load_history()
 
     if page == "Dashboard":
         page_dashboard(history)
     elif page == "Analyze Call":
+        whisper_model, sentiment_model = load_models()
         page_analyze(whisper_model, sentiment_model)
     else:
         page_history(history)
