@@ -24,6 +24,7 @@ except ImportError:
 # --- Constants
 APP_TITLE = "VoiceIQ"
 APP_SUBTITLE = "Call Sentiment Intelligence"
+ANALYSIS_ENABLED = os.environ.get("ENABLE_ANALYSIS", "true").lower() == "true"
 TEMP_AUDIO_DIR = Path("temp_audio")
 TEMP_AUDIO_PATH = TEMP_AUDIO_DIR / "incoming_audio"
 
@@ -784,6 +785,39 @@ def main():
     if page == "Dashboard":
         page_dashboard(history)
     elif page == "Analyze Call":
+        if not ANALYSIS_ENABLED:
+            st.markdown("""
+            <div style="margin-bottom:2rem;">
+                <div style="
+                    font-family:'Syne',sans-serif;
+                    font-size:0.7rem;
+                    letter-spacing:0.15em;
+                    text-transform:uppercase;
+                    color:#334155;
+                    margin-bottom:0.4rem;
+                ">Deployment Mode</div>
+                <h1 style="
+                    font-family:'Syne',sans-serif;
+                    font-size:2.2rem;
+                    font-weight:800;
+                    color:#f1f5f9;
+                    margin:0;
+                    line-height:1.1;
+                ">Analysis is disabled on this free deployment</h1>
+                <p style="
+                    font-family:'DM Mono',monospace;
+                    font-size:0.8rem;
+                    color:#64748b;
+                    margin-top:0.8rem;
+                    max-width:720px;
+                    line-height:1.7;
+                ">
+                    Whisper and Torch need more memory than Render Free provides. Dashboard and MongoDB call history
+                    are still live here; run locally or use a larger instance to analyze new audio files.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            return
         whisper_model, sentiment_model = load_models()
         page_analyze(whisper_model, sentiment_model)
     else:

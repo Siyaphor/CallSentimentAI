@@ -1,0 +1,4 @@
+streamlit
+pydub
+plotly
+pymongo
