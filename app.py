@@ -582,7 +582,7 @@ def page_dashboard(history):
     render_history_table(history[:5])
 
 
-def page_analyze(whisper_model, sentiment_model):
+def page_analyze():
     st.markdown("""
     <div style="margin-bottom:2rem;">
         <div style="
@@ -653,6 +653,7 @@ def page_analyze(whisper_model, sentiment_model):
         TEMP_AUDIO_PATH.write_bytes(uploaded_file.getvalue())
 
         with st.spinner("Transcribing audio and analyzing sentiment…"):
+            whisper_model, sentiment_model = load_models()
             audio = AudioSegment.from_file(TEMP_AUDIO_PATH)
             audio.export("converted.wav", format="wav")
             result = whisper_model.transcribe("converted.wav")
@@ -782,13 +783,14 @@ def page_history(history):
 # ─────────────────────────────────────────────
 def main():
     page = render_sidebar()
-    whisper_model, sentiment_model = load_models()
+   # whisper_model, sentiment_model = load_models()
     history = load_history()
 
     if page == "Dashboard":
         page_dashboard(history)
     elif page == "Analyze Call":
-        page_analyze(whisper_model, sentiment_model)
+        #page_analyze(whisper_model, sentiment_model)page_analyze()
+        page_analyze()
     else:
         page_history(history)
 
