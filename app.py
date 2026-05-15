@@ -470,7 +470,7 @@ def render_sidebar():
         ">Navigation</div>
         """, unsafe_allow_html=True)
 
-        page = st.radio("", ["Dashboard", "Analyze Call", "Call History"], label_visibility="collapsed")
+        page = st.radio("Navigation", ["Dashboard", "Analyze Call", "Call History"], label_visibility="collapsed")
 
         history = load_history()
         stats = summarize_history(history)

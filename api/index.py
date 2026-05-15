@@ -64,7 +64,7 @@ def transcribe_audio(file_storage) -> str:
             "Audio transcription dependencies are not installed in the Vercel runtime."
         ) from exc
 
-    whisper_model = whisper.load_model("base")
+    whisper_model = whisper.load_model("tiny")
     suffix = Path(file_storage.filename or "audio").suffix or ".wav"
 
     with tempfile.TemporaryDirectory() as temp_dir:
