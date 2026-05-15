@@ -1,0 +1,9 @@
+streamlit
+openai-whisper
+transformers
+pydub
+ffmpeg-python
+torch
+plotly
+
+# Duplicates removed above (do not need to install twice)
