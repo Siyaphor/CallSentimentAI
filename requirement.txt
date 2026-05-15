@@ -5,6 +5,5 @@ pydub
 ffmpeg-python
 torch
 plotly
-audioop-lts
 
 # Duplicates removed above (do not need to install twice)
