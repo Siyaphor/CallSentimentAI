@@ -3,7 +3,8 @@ openai-whisper
 transformers
 pydub
 ffmpeg-python
-torch
+torch==2.2.2
+torchaudio==2.2.2
 plotly
 
 # Duplicates removed above (do not need to install twice)
