@@ -1,5 +1,6 @@
 import json
 import os
+import gc
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
@@ -168,8 +169,9 @@ hr {
 # ─────────────────────────────────────────────
 @st.cache_resource
 def load_models():
-    whisper_model = whisper.load_model("base")
-    sentiment_model = pipeline("sentiment-analysis")
+    whisper_model = whisper.load_model("tiny")
+    sentiment_model = pipeline("sentiment-analysis",
+    model="distilbert-base-uncased-finetuned-sst-2-english")
     return whisper_model, sentiment_model
 
 
@@ -661,6 +663,9 @@ def page_analyze():
             sentiment = sentiment_model(text)[0]
             label = sentiment.get("label", "NEUTRAL")
             score = sentiment.get("score", 0.0)
+
+            del sentiment_model
+            gc.collect() 
 
         # Results
         st.markdown("""
