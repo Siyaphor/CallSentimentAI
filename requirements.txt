@@ -5,4 +5,5 @@ ffmpeg-python
 torch
 plotly
 pydub
+audioop-lts
 
