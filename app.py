@@ -657,7 +657,7 @@ def page_analyze():
             whisper_model = load_whisper()
             audio = AudioSegment.from_file(TEMP_AUDIO_PATH)
             audio.export("converted.wav", format="wav")
-            segments, _ = whisper_model.transcribe("converted.wav")
+            segments, _ = whisper_model.transcribe("converted.wav", beam_size=1)
             text = " ".join([seg.text for seg in segments])
             gc.collect()
 
