@@ -16,7 +16,8 @@ except ImportError:
     HAS_PLOTLY = False
 
 import streamlit as st
-import whisper
+from faster_whisper import WhisperModel
+
 
 try:
     from transformers import pipeline
@@ -168,11 +169,14 @@ hr {
 # UTILS
 # ─────────────────────────────────────────────
 @st.cache_resource
-def load_models():
-    whisper_model = whisper.load_model("tiny")
-    sentiment_model = pipeline("sentiment-analysis",
-    model="distilbert-base-uncased-finetuned-sst-2-english")
-    return whisper_model, sentiment_model
+def load_whisper():
+    return WhisperModel("tiny", device="cpu", compute_type="int8")
+
+@st.cache_resource
+def load_sentiment():
+    return pipeline("sentiment-analysis",
+        model="distilbert-base-uncased-finetuned-sst-2-english",
+        device=-1)  # force CPU
 
 
 def load_history() -> List[Dict]:
@@ -655,17 +659,18 @@ def page_analyze():
         TEMP_AUDIO_PATH.write_bytes(uploaded_file.getvalue())
 
         with st.spinner("Transcribing audio and analyzing sentiment…"):
-            whisper_model, sentiment_model = load_models()
+            whisper_model = load_whisper()
             audio = AudioSegment.from_file(TEMP_AUDIO_PATH)
             audio.export("converted.wav", format="wav")
-            result = whisper_model.transcribe("converted.wav")
-            text = result.get("text", "")
-            sentiment = sentiment_model(text)[0]
-            label = sentiment.get("label", "NEUTRAL")
-            score = sentiment.get("score", 0.0)
+            segments, _ = whisper_model.transcribe("converted.wav")
+            text = " ".join([seg.text for seg in segments])
+            gc.collect()
 
-            del sentiment_model
-            gc.collect() 
+            sentiment_model = load_sentiment()
+            sentiment = sentiment_model(text[:512])[0]
+            label = sentiment["label"]
+            score = sentiment["score"]
+            gc.collect()
 
         # Results
         st.markdown("""
