@@ -19,10 +19,10 @@ import streamlit as st
 from faster_whisper import WhisperModel
 
 
-try:
-    from transformers import pipeline
-except ImportError:
-    from transformers.pipelines import pipeline
+# try:
+#     from transformers import pipeline
+# except ImportError:
+#     from transformers.pipelines import pipeline
 
 # --- Constants
 APP_TITLE = "VoiceIQ"
@@ -172,11 +172,6 @@ hr {
 def load_whisper():
     return WhisperModel("tiny", device="cpu", compute_type="int8")
 
-@st.cache_resource
-def load_sentiment():
-    return pipeline("sentiment-analysis",
-        model="distilbert-base-uncased-finetuned-sst-2-english",
-        device=-1)  # force CPU
 
 
 def load_history() -> List[Dict]:
@@ -666,11 +661,16 @@ def page_analyze():
             text = " ".join([seg.text for seg in segments])
             gc.collect()
 
-            sentiment_model = load_sentiment()
-            sentiment = sentiment_model(text[:512])[0]
-            label = sentiment["label"]
-            score = sentiment["score"]
-            gc.collect()
+            from textblob import TextBlob
+            polarity = TextBlob(text).sentiment.polarity
+            if polarity > 0:
+                label = "POSITIVE"
+            elif polarity < 0:
+                label = "NEGATIVE"
+            else:
+                label = "NEUTRAL"
+            score = abs(polarity)
+            
 
         # Results
         st.markdown("""

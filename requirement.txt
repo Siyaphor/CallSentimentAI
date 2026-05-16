@@ -3,6 +3,4 @@ faster-whisper
 pydub
 ffmpeg-python
 plotly
-transformers
-torch
 textblob
